@@ -1,0 +1,22 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # 1. API Routing
+  # Allows requests to /api/jobs/123 to rewrite to /api/jobs.php?id=123
+  RewriteRule ^api/jobs/([0-9]+)$ api/jobs.php?id=$1 [L,QSA]
+  
+  # Forward other /api/something to /api/something.php
+  # Ensure the .php file exists first!
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{DOCUMENT_ROOT}/api/$1.php -f
+  RewriteRule ^api/([a-zA-Z0-9_-]+)$ api/$1.php [L,QSA]
+
+  # 2. React SPA Fallback
+  # If request isn't for /api/, /uploads/, or an existing file/folder, serve index.html
+  RewriteCond %{REQUEST_URI} !^/api/
+  RewriteCond %{REQUEST_URI} !^/uploads/
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.html [L]
+</IfModule>
